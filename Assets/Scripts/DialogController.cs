@@ -1,10 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Xml;
 using TMPro;
-using System.Xml.Serialization;
-using System.IO;
 
 public class DialogController : MonoBehaviour
 {
@@ -19,7 +16,6 @@ public class DialogController : MonoBehaviour
         XmlDocument XMLDoc = new XmlDocument();
         XMLDoc.LoadXml(Settings.XMLFile.text);
         _dialogReader = new DialogReader(XMLDoc);
-
         Write();
     }
 
@@ -57,9 +53,13 @@ public class DialogController : MonoBehaviour
             yield return new WaitForSeconds(Settings.SpeedOfTextWriter);
         }
     }
-    public void Write(){
-        SetName(_dialogReader.Persons[_personID].Name,_dialogReader.Persons[_personID].HEXColor);
-        StartCoroutine(WriteText(_dialogReader.Persons[_personID].PersonReplics[_replicID]));
+    public void ReadNewText()
+    {
+        if(_personID == _dialogReader.Persons.Count - 1 && _replicID == _dialogReader.Persons[_personID].PersonReplics.Count - 1 )
+        {
+            print("no new bitch");
+            return;
+        }
         if(_replicID == _dialogReader.Persons[_personID].PersonReplics.Count - 1){
             _replicID = 0;
             _personID++;
@@ -67,9 +67,31 @@ public class DialogController : MonoBehaviour
         else{
             _replicID++;
         }
+        Write();
     }
-    public void Write(bool writeNext){
+    public void ReadOldText()
+    {
         
+        if(_personID == 0 && _replicID == 0)
+        {
+            print("no old bitch");
+            return;
+        }
+        if(_replicID == 0){
+            _personID--;
+            _replicID = _dialogReader.Persons[_personID].PersonReplics.Count - 1;
+        }
+        else{
+            _replicID--;
+        }
+        Write();
+    }
+
+    private void Write()
+    {
+        StopAllCoroutines();
+        SetName(_dialogReader.Persons[_personID].Name,_dialogReader.Persons[_personID].HEXColor);
+        StartCoroutine(WriteText(_dialogReader.Persons[_personID].PersonReplics[_replicID]));
     }
 }
 
